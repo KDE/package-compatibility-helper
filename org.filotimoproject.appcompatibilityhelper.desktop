@@ -9,5 +9,5 @@ Icon=apper
 Type=Application
 Terminal=false
 NoDisplay=true
-MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;application/x-rpm;application/vnd.debian.binary-package
+MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;application/vnd.microsoft.portable-executable;application/x-msdownload;application/x-rpm;application/vnd.debian.binary-package
 # TODO: These are not implemented yet: ;application/vnd.appimage;application/x-iso9660-appimage
