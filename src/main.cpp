@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
                                                        if (!helper) {
                                                            qWarning() << "No compatible helper found for the provided file type.";
                                                            qWarning() << "The application will now exit.";
-                                                           QCoreApplication::exit(-1);
+                                                           QCoreApplication::quit();
                                                        }
                                                        return helper;
                                                    });

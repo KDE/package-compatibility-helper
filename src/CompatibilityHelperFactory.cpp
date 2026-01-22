@@ -19,7 +19,8 @@ ICompatibilityHelper *CompatibilityHelperFactory::create(const QUrl &filePath)
     QMimeDatabase mimeDb;
     QString mimeTypeName = mimeDb.mimeTypeForFile(filePath.toLocalFile()).name();
 
-    if (mimeTypeName == u"application/x-ms-dos-executable"_s || mimeTypeName == u"application/x-msi"_s || mimeTypeName == u"application/x-ms-shortcut"_s) {
+    if (mimeTypeName == u"application/x-ms-dos-executable"_s || mimeTypeName == u"application/x-msi"_s || mimeTypeName == u"application/x-ms-shortcut"_s
+        || mimeTypeName == u"application/vnd.microsoft.portable-executable"_s || mimeTypeName == u"application/x-msdownload"_s) {
         return createWindowsCompatibilityHelper(QUrl::fromLocalFile(WINDOWSCOMPATIBILITYHELPER_DB_PATH), filePath);
     }
 
