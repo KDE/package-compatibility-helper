@@ -140,9 +140,9 @@ QString WindowsCompatibilityHelper::description() const
     if (hasCompatibilityTool()) {
         desc += u"<br><br>"_s;
         if (isCompatibilityToolInstalled()) {
-            desc += i18n("Alternatively, you can run the Windows version using Bottles. ");
+            desc += i18n("Alternatively, you can run the Windows version using Wine. ");
         } else {
-            desc += i18n("Alternatively, you can install Bottles to run Windows applications. ");
+            desc += i18n("Alternatively, you can install Wine to run Windows applications. ");
         }
         desc += i18n(
             "This is not recommended for most users, as running Windows applications through a compatibility layer can have bugs, poor performance, and poor "
@@ -191,24 +191,24 @@ void WindowsCompatibilityHelper::nativeAppAction() const
 
 bool WindowsCompatibilityHelper::isCompatibilityToolInstalled() const
 {
-    return isAppInstalled(BOTTLES_ID);
+    return isAppInstalled(WINE_ID);
 }
 
 QString WindowsCompatibilityHelper::compatibilityToolActionText() const
 {
     // TODO: Make this compatibility tool agnostic.
     if (isCompatibilityToolInstalled()) {
-        return i18n("Run with Bottles");
+        return i18n("Run with Wine");
     } else {
-        return i18n("Install Bottles");
+        return i18n("Install Wine");
     }
 }
 
 QString WindowsCompatibilityHelper::compatibilityToolActionIcon() const
 {
     // TODO: Make this compatibility tool agnostic.
-    if (isCompatibilityToolInstalled() && hasIcon(BOTTLES_ID)) {
-        return BOTTLES_ID;
+    if (isCompatibilityToolInstalled() && hasIcon(WINE_ID)) {
+        return WINE_ID;
     } else {
         return u"plasmadiscover"_s;
     }
@@ -218,8 +218,8 @@ void WindowsCompatibilityHelper::compatibilityToolAction() const
 {
     // TODO: Make this compatibility tool agnostic.
     if (isCompatibilityToolInstalled()) {
-        openApp(BOTTLES_ID, {m_filePath});
+        openApp(WINE_ID, {m_filePath});
     } else {
-        openAppInAppStore(BOTTLES_ID);
+        openAppInAppStore(WINE_ID);
     }
 }

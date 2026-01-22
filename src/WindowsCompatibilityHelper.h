@@ -12,7 +12,7 @@
 
 using namespace Qt::Literals::StringLiterals;
 
-#define BOTTLES_ID u"com.usebottles.bottles"_s
+#define WINE_ID u"org.winehq.Wine"_s
 
 class WindowsCompatibilityHelper : public ICompatibilityHelper
 {
