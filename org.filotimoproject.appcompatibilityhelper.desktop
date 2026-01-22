@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
+[Desktop Entry]
+Name=App Compatibility Support
+Comment=Provides support for running or finding alternatives to certain package types on ublue-based distributions.
+Version=1.0
+Exec=appcompatibilityhelper
+Icon=apper
+Type=Application
+Terminal=false
+NoDisplay=true
+MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;application/x-rpm;application/vnd.debian.binary-package
+# TODO: These are not implemented yet: ;application/vnd.appimage;application/x-iso9660-appimage
