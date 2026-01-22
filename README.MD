@@ -18,4 +18,3 @@ On any non-immutable system with the dependencies installed, this can be built a
 ```
 cmake -B build/ -DCMAKE_INSTALL_PREFIX=/usr && cmake --build build/ -v && cmake --install build/
 ```
-```
