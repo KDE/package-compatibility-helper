@@ -137,7 +137,7 @@ QString WindowsCompatibilityHelper::description() const
         desc = i18n("You can search for alternatives online or in %1.", appStoreName());
     }
 
-    if (hasCompatibilityTool()) {
+    if (hasCompatibilityTool() && !hasNativeApp()) {
         desc += u"<br><br>"_s;
         if (isCompatibilityToolInstalled()) {
             desc += i18n("Alternatively, you can run the Windows version using Wine. ");

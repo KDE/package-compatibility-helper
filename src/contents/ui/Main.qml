@@ -91,7 +91,7 @@ Kirigami.ApplicationWindow {
 
                 QQC2.Button {
                     id: compatibilityToolActionButton
-                    visible: AppCompatibilityHelper.hasCompatibilityTool
+                    visible: AppCompatibilityHelper.hasCompatibilityTool && !AppCompatibilityHelper.hasNativeApp
                     highlighted: !nativeAppActionButton.visible
                     icon.name: AppCompatibilityHelper.compatibilityToolActionIcon
                     text: AppCompatibilityHelper.compatibilityToolActionText
