@@ -5,12 +5,12 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
-import org.filotimoproject.appcompatibilityhelper
+import org.kde.packagecompatibilityhelper
 
 Kirigami.ApplicationWindow {
     id: root
 
-    title: AppCompatibilityHelper.windowTitle
+    title: PackageCompatibilityHelper.windowTitle
 
     flags: Qt.Dialog | Qt.WindowStaysOnTopHint
 
@@ -52,7 +52,7 @@ Kirigami.ApplicationWindow {
                     Layout.preferredWidth: Kirigami.Units.iconSizes.large * 2
                     Layout.preferredHeight: Kirigami.Units.iconSizes.large * 2
                     Layout.alignment: Qt.AlignCenter
-                    source: AppCompatibilityHelper.icon
+                    source: PackageCompatibilityHelper.icon
                 }
 
                 ColumnLayout {
@@ -63,14 +63,14 @@ Kirigami.ApplicationWindow {
                         id: heading
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
-                        text: AppCompatibilityHelper.heading
+                        text: PackageCompatibilityHelper.heading
                     }
 
                     QQC2.Label {
                         Layout.fillWidth: true
                         Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 30, heading.implicitWidth)
                         wrapMode: Text.WordWrap
-                        text: AppCompatibilityHelper.description
+                        text: PackageCompatibilityHelper.description
                     }
                 }
             }
@@ -84,31 +84,31 @@ Kirigami.ApplicationWindow {
                     icon.name: "system-run-symbolic"
                     text: i18n("Open With…")
                     onClicked: {
-                        AppCompatibilityHelper.openWithAction()
+                        PackageCompatibilityHelper.openWithAction()
                         root.close()
                     }
                 }
 
                 QQC2.Button {
                     id: compatibilityToolActionButton
-                    visible: AppCompatibilityHelper.hasCompatibilityTool && !AppCompatibilityHelper.hasNativeApp
+                    visible: PackageCompatibilityHelper.hasCompatibilityTool && !PackageCompatibilityHelper.hasNativeApp
                     highlighted: !nativeAppActionButton.visible
-                    icon.name: AppCompatibilityHelper.compatibilityToolActionIcon
-                    text: AppCompatibilityHelper.compatibilityToolActionText
+                    icon.name: PackageCompatibilityHelper.compatibilityToolActionIcon
+                    text: PackageCompatibilityHelper.compatibilityToolActionText
                     onClicked: {
-                        AppCompatibilityHelper.compatibilityToolAction()
+                        PackageCompatibilityHelper.compatibilityToolAction()
                         root.close()
                     }
                 }
 
                 QQC2.Button {
                     id: nativeAppActionButton
-                    visible: AppCompatibilityHelper.hasNativeApp
+                    visible: PackageCompatibilityHelper.hasNativeApp
                     highlighted: true
-                    icon.name: AppCompatibilityHelper.nativeAppActionIcon
-                    text: AppCompatibilityHelper.nativeAppActionText
+                    icon.name: PackageCompatibilityHelper.nativeAppActionIcon
+                    text: PackageCompatibilityHelper.nativeAppActionText
                     onClicked: {
-                        AppCompatibilityHelper.nativeAppAction()
+                        PackageCompatibilityHelper.nativeAppAction()
                         root.close()
                     }
                 }

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: CC0-1.0
 # SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 [Desktop Entry]
-Name=App Compatibility Support
+Name=Package Compatibility Helper
 Comment=Provides support for running or finding alternatives to certain package types on ublue-based distributions.
 Version=1.0
-Exec=appcompatibilityhelper
+Exec=package-compatibility-helper
 Icon=apper
 Type=Application
 Terminal=false

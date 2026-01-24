@@ -3,7 +3,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(appcompatibilityhelper VERSION 0.10)
+project(package-compatibility-helper VERSION 0.10)
 
 include(FeatureSummary)
 
@@ -25,8 +25,8 @@ include(KDEGitCommitHooks)
 include(KDEClangFormat)
 
 ecm_setup_version(${PROJECT_VERSION}
-    VARIABLE_PREFIX APPCOMPATIBILITYHELPER
-    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/version-appcompatibilityhelper.h"
+  VARIABLE_PREFIX PACKAGE_COMPATIBILITY_HELPER
+  VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/version-package-compatibility-helper.h"
 )
 
 set(QT_EXTRA_COMPONENTS)

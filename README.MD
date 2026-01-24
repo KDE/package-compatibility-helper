@@ -1,4 +1,4 @@
-# App Compatibility Support
+# Package Compatibility Helper
 
 Provides support for running or finding alternatives to certain package types on ublue-based distributions.
 

@@ -2,15 +2,15 @@
 # SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 
 # Target: static library
-qt_add_qml_module(appcompatibilityhelper_static
+qt_add_qml_module(packagecompatibilityhelper_static
     STATIC
-    URI org.filotimoproject.appcompatibilityhelper
+    URI org.kde.packagecompatibilityhelper
     VERSION 1.0
     QML_FILES
         contents/ui/Main.qml
 )
 
-target_sources(appcompatibilityhelper_static PUBLIC
+target_sources(packagecompatibilityhelper_static PUBLIC
     ICompatibilityHelper.cpp
     CompatibilityHelperFactory.cpp
     WindowsCompatibilityHelper.cpp
@@ -19,7 +19,7 @@ target_sources(appcompatibilityhelper_static PUBLIC
     PackageUtils.cpp
 )
 
-target_link_libraries(appcompatibilityhelper_static PUBLIC
+target_link_libraries(packagecompatibilityhelper_static PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Qml
@@ -33,10 +33,10 @@ target_link_libraries(appcompatibilityhelper_static PUBLIC
     KF6::KIOCore
     KF6::KIOWidgets
 )
-target_include_directories(appcompatibilityhelper_static PUBLIC ${CMAKE_BINARY_DIR})
+target_include_directories(packagecompatibilityhelper_static PUBLIC ${CMAKE_BINARY_DIR})
 
 # Target: main executable
-add_executable(appcompatibilityhelper main.cpp)
-target_link_libraries(appcompatibilityhelper PUBLIC appcompatibilityhelper_static appcompatibilityhelper_staticplugin)
-install(FILES app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/appcompatibilityhelper)
-install(TARGETS appcompatibilityhelper ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+add_executable(package-compatibility-helper main.cpp)
+target_link_libraries(package-compatibility-helper PUBLIC packagecompatibilityhelper_static packagecompatibilityhelper_staticplugin)
+install(FILES app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME})
+install(TARGETS package-compatibility-helper ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})

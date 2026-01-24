@@ -11,7 +11,7 @@
 #include <QUrl>
 
 #include "ICompatibilityHelper.h"
-#include "version-appcompatibilityhelper.h"
+#include "version-package-compatibility-helper.h"
 #include <KAboutData>
 #include <KLocalizedContext>
 #include <KLocalizedString>
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     // Ensure there's actually something to run.
     if (argc < 2) {
         qWarning() << "No executable file provided.";
-        qWarning() << "Usage: appcompatibilityhelper <path to file>";
+        qWarning() << "Usage: package-compatibility-helper <path to file>";
         return -1;
     }
 
@@ -37,26 +37,23 @@ int main(int argc, char *argv[])
         QQuickStyle::setStyle(u"org.kde.desktop"_s);
     }
 
-    KLocalizedString::setApplicationDomain("appcompatibilityhelper");
-    QCoreApplication::setOrganizationName(u"Filotimo Project"_s);
+    KLocalizedString::setApplicationDomain("package-compatibility-helper");
+    QCoreApplication::setOrganizationName(u"KDE"_s);
 
     KAboutData aboutData(
         // The program name used internally.
-        u"appcompatibilityhelper"_s,
+        u"package-compatibility-helper"_s,
         // A displayable program name string.
-        i18nc("@title", "App Compatibility Support"),
+        i18nc("@title", "Package Compatibility Helper"),
         // The program version string.
-        QStringLiteral(APPCOMPATIBILITYHELPER_VERSION_STRING),
+        QStringLiteral(PACKAGE_COMPATIBILITY_HELPER_VERSION_STRING),
         // Short description of what the app does.
         i18n("Provides support for running or finding alternatives to certain package types on immutable distributions."),
         // The license this code is released under.
         KAboutLicense::GPL,
         // Copyright Statement.
         i18n("(c) 2025"));
-    aboutData.addAuthor(i18nc("@info:credit", "Thomas Duckworth"),
-                        i18nc("@info:credit", "Maintainer"),
-                        u"tduck@filotimoproject.org"_s,
-                        u"https://filotimoproject.org/"_s);
+    aboutData.addAuthor(i18nc("@info:credit", "Thomas Duckworth"), i18nc("@info:credit", "Maintainer"), u"tduck@filotimoproject.org"_s, u"https://kde.org/"_s);
     aboutData.setTranslator(i18nc("NAME OF TRANSLATORS", "Your names"), i18nc("EMAIL OF TRANSLATORS", "Your emails"));
     KAboutData::setApplicationData(aboutData);
     QGuiApplication::setWindowIcon(QIcon::fromTheme(u"apper"_s));
@@ -65,10 +62,10 @@ int main(int argc, char *argv[])
 
     // Register the correct compatibility helper as a QML singleton.
     QUrl filePath = QUrl::fromLocalFile(QString::fromLatin1(argv[1]));
-    qmlRegisterSingletonType<ICompatibilityHelper>("org.filotimoproject.appcompatibilityhelper",
+    qmlRegisterSingletonType<ICompatibilityHelper>("org.kde.packagecompatibilityhelper",
                                                    1,
                                                    0,
-                                                   "AppCompatibilityHelper",
+                                                   "PackageCompatibilityHelper",
                                                    [filePath](QQmlEngine *engine, QJSEngine *scriptEngine) -> QObject * {
                                                        Q_UNUSED(engine)
                                                        Q_UNUSED(scriptEngine)
@@ -83,7 +80,7 @@ int main(int argc, char *argv[])
                                                    });
 
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
-    engine.loadFromModule("org.filotimoproject.appcompatibilityhelper", u"Main");
+    engine.loadFromModule("org.kde.packagecompatibilityhelper", u"Main");
 
     if (engine.rootObjects().isEmpty()) {
         return -1;
