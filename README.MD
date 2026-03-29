@@ -9,12 +9,7 @@ Extensible for any mimetype - just implement `ICompatibilityHelper` and add a ca
 
 ## Build and Installation Instructions
 
-Can be built and installed on a KDE Linux system with a development environment installed with:
+Can be built and installed with KDE Builder:
 ```
-cmake -B build/ -DCMAKE_INSTALL_PREFIX=~/kde/usr && cmake --build build/ -v && cmake --install build/
-```
-
-On any non-immutable system with the dependencies installed, this can be built and installed with:
-```
-cmake -B build/ -DCMAKE_INSTALL_PREFIX=/usr && cmake --build build/ -v && cmake --install build/
+kde-builder package-compatibility-helper
 ```
