@@ -11,7 +11,7 @@
 #include <KLocalizedString>
 #include <QIcon>
 
-#define DOCUMENTATION_URL QUrl(u"https://kde.org/linux/docs/more-software/#software-not-listed-above"_s)
+#define DOCUMENTATION_URL QUrl(u"https://kde.org/linux/docs/more-software"_s)
 
 void ICompatibilityHelper::openAppInAppStore(const QString &ref) const
 {
