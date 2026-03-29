@@ -6,9 +6,12 @@
 #include <KIO/ApplicationLauncherJob>
 #include <KIO/CommandLauncherJob>
 #include <KIO/JobUiDelegateFactory>
+#include <KIO/OpenUrlJob>
 #include <KLocalizedContext>
 #include <KLocalizedString>
 #include <QIcon>
+
+#define DOCUMENTATION_URL QUrl(u"https://kde.org/linux/docs/more-software/#software-not-listed-above"_s)
 
 void ICompatibilityHelper::openAppInAppStore(const QString &ref) const
 {
@@ -97,6 +100,28 @@ QString ICompatibilityHelper::distroName() const
 bool ICompatibilityHelper::hasIcon(const QString &ref) const
 {
     return QIcon::hasThemeIcon(ref);
+}
+
+QUrl ICompatibilityHelper::documentationUrl() const
+{
+    return DOCUMENTATION_URL;
+}
+
+void ICompatibilityHelper::documentationAction() const
+{
+    KIO::OpenUrlJob *job = new KIO::OpenUrlJob(documentationUrl());
+    job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, nullptr));
+    job->start();
+}
+
+QString ICompatibilityHelper::documentationActionIcon() const
+{
+    return u"help-contents-symbolic"_s;
+}
+
+QString ICompatibilityHelper::documentationActionText() const
+{
+    return i18n("Get Help");
 }
 
 // Default implementations for the pure virtual Q_INVOKABLEs in ICompatibilityHelper.

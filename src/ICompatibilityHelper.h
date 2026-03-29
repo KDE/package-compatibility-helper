@@ -44,6 +44,11 @@ class ICompatibilityHelper : public QObject
     // The icon to show the user for the action to install or open the compatibility tool.
     Q_PROPERTY(QString compatibilityToolActionIcon READ compatibilityToolActionIcon CONSTANT)
 
+    // The text to show the user for the action to open the documentation.
+    Q_PROPERTY(QString documentationActionText READ documentationActionText CONSTANT)
+    // The icon to show the user for the action to open the documentation.
+    Q_PROPERTY(QString documentationActionIcon READ documentationActionIcon CONSTANT)
+
 public:
     explicit ICompatibilityHelper(QUrl filePath, QObject *parent = nullptr)
         : QObject(parent)
@@ -62,11 +67,16 @@ public:
     virtual bool hasCompatibilityTool() const = 0;
     virtual QString compatibilityToolActionText() const = 0;
     virtual QString compatibilityToolActionIcon() const = 0;
+    QString documentationActionText() const;
+    QString documentationActionIcon() const;
 
     // Opens the software store to install the native application, or opens the native application if it is already installed.
     Q_INVOKABLE virtual void nativeAppAction() const;
-    // Opens the exe with the chosen compatibility tool, or prompts the user to install the compatibility tool if it is not installed.
+    // Opens the package with the chosen compatibility tool, or prompts the user to install the compatibility tool if it is not installed.
     Q_INVOKABLE virtual void compatibilityToolAction() const;
+    // Opens the documentation link.
+    // This is a generic action, so it doesn't need to be overridden in subclasses.
+    Q_INVOKABLE void documentationAction() const;
     // Opens the "Open With" dialog to select an alternative application to launch the file with.
     // This is a generic action, so it doesn't need to be overridden in subclasses.
     Q_INVOKABLE void openWithAction() const;
@@ -87,6 +97,9 @@ protected:
     // Indicates if the compatibility tool is already installed on the system.
     // This doesn't need to be exposed to the QML interface, as it is only used internally to determine how to display the compatibility tool action.
     virtual bool isCompatibilityToolInstalled() const = 0;
+
+    // Returns the documentation URL, which can be overridden per each mime type.
+    virtual QUrl documentationUrl() const;
 
     // Helper to open a reference to an app in the default app store.
     void openAppInAppStore(const QString &ref) const;

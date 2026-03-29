@@ -114,6 +114,18 @@ Kirigami.ApplicationWindow {
                 }
 
                 QQC2.Button {
+                    id: documentationActionButton
+                    visible: !PackageCompatibilityHelper.hasCompatibilityTool && !PackageCompatibilityHelper.hasNativeApp
+                    highlighted: !nativeAppActionButton.visible && !compatibilityToolActionButton.visible
+                    icon.name: PackageCompatibilityHelper.documentationActionIcon
+                    text: PackageCompatibilityHelper.documentationActionText
+                    onClicked: {
+                        PackageCompatibilityHelper.documentationAction()
+                        root.close()
+                    }
+                }
+
+                QQC2.Button {
                     icon.name: "dialog-cancel"
                     text: i18n("Cancel")
                     onClicked: root.close()

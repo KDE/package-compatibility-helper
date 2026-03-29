@@ -82,8 +82,7 @@ QString RpmCompatibilityHelper::description() const
 
     if (!hasNativeApp()) {
         desc += u"<br><br>"_s;
-        desc += i18n("Alternatively, you may be able to create a Distrobox to run this RPM package in a containerized environment. ");
-        desc += i18n("This is not recommended for most users, as it requires additional advanced setup.");
+        desc += i18n("Learn about options for getting it by clicking <b>Get Help</b> below.");
     }
 
     return desc;
