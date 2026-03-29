@@ -40,3 +40,5 @@ add_executable(package-compatibility-helper main.cpp)
 target_link_libraries(package-compatibility-helper PUBLIC packagecompatibilityhelper_static packagecompatibilityhelper_staticplugin)
 install(FILES app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME})
 install(TARGETS package-compatibility-helper ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+
+install(FILES org.kde.package-compatibility-helper.desktop DESTINATION ${KDE_INSTALL_APPDIR})
