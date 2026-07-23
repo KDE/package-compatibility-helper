@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: NONE
+exec @KDE_INSTALL_FULL_LIBEXECDIR@/package-compatibility-helper-run kjar java "$@"

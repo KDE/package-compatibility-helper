@@ -8,6 +8,7 @@ qt_add_qml_module(packagecompatibilityhelper_static
     VERSION 1.0
     QML_FILES
         contents/ui/Main.qml
+        contents/ui/InstallPage.qml
 )
 
 target_sources(packagecompatibilityhelper_static PUBLIC
@@ -16,12 +17,15 @@ target_sources(packagecompatibilityhelper_static PUBLIC
     WindowsCompatibilityHelper.cpp
     RpmCompatibilityHelper.cpp
     DebCompatibilityHelper.cpp
+    GenericCompatibilityHelper.cpp
     PackageUtils.cpp
+    CompatibilityToolInstaller.cpp
 )
 
 target_link_libraries(packagecompatibilityhelper_static PUBLIC
     Qt6::Core
     Qt6::Gui
+    Qt6::Network
     Qt6::Qml
     Qt6::Quick
     Qt6::QuickControls2
@@ -32,6 +36,7 @@ target_link_libraries(packagecompatibilityhelper_static PUBLIC
     KF6::CoreAddons
     KF6::KIOCore
     KF6::KIOWidgets
+    PkgConfig::Flatpak
 )
 target_include_directories(packagecompatibilityhelper_static PUBLIC ${CMAKE_BINARY_DIR})
 
@@ -39,6 +44,8 @@ target_include_directories(packagecompatibilityhelper_static PUBLIC ${CMAKE_BINA
 add_executable(package-compatibility-helper main.cpp)
 target_link_libraries(package-compatibility-helper PUBLIC packagecompatibilityhelper_static packagecompatibilityhelper_staticplugin)
 install(FILES app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME})
+install(FILES ${CMAKE_SOURCE_DIR}/data/apps/wine.conf
+        DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME}/apps)
 install(TARGETS package-compatibility-helper ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 
 install(FILES org.kde.package-compatibility-helper.desktop DESTINATION ${KDE_INSTALL_APPDIR})

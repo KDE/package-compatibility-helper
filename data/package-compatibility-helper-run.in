@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: NONE
+#
+# Launcher for the shims installed by the trees in trees/. Installs the
+# tree's Flatpak first if needed, then runs the real command.
+#
+# Usage: package-compatibility-helper-run <config-name> [command] [args...]
+
+set -euo pipefail
+
+CONFIG_NAME="${1:?Usage: package-compatibility-helper-run <config-name> [command] [args...]}"
+shift
+
+# Sysconfdir first, so configs in /etc override the ones in datadir.
+CONFIG_FILE=""
+for dir in "@KDE_INSTALL_FULL_SYSCONFDIR@/@PROJECT_NAME@/apps" "@KDE_INSTALL_FULL_DATADIR@/@PROJECT_NAME@/apps"; do
+    if [[ -f "$dir/$CONFIG_NAME.conf" ]]; then
+        CONFIG_FILE="$dir/$CONFIG_NAME.conf"
+        break
+    fi
+done
+if [[ -z "$CONFIG_FILE" ]]; then
+    echo "package-compatibility-helper-run: no such config: $CONFIG_NAME" >&2
+    exit 1
+fi
+
+# Read Id= from the [App] section (first match wins).
+APP_ID=$(sed -n 's/^Id[[:space:]]*=[[:space:]]*//p' "$CONFIG_FILE" | head -n1)
+if [[ -z "$APP_ID" ]]; then
+    echo "package-compatibility-helper-run: config $CONFIG_FILE has no App Id" >&2
+    exit 1
+fi
+
+# Ask Flatpak for the ref itself. The installer exits non-zero if it does
+# not get installed.
+if ! flatpak info "$APP_ID" >/dev/null 2>&1; then
+    "@KDE_INSTALL_FULL_BINDIR@/package-compatibility-helper" --install "$CONFIG_NAME"
+fi
+
+exec flatpak run "$APP_ID" "$@"

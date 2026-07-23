@@ -140,9 +140,9 @@ QString WindowsCompatibilityHelper::description() const
     if (hasCompatibilityTool() && !hasNativeApp()) {
         desc += u"<br><br>"_s;
         if (isCompatibilityToolInstalled()) {
-            desc += i18n("Alternatively, you can run the Windows version using Wine. ");
+            desc += i18n("Alternatively, you can run the Windows version using %1. ", compatibilityToolName());
         } else {
-            desc += i18n("Alternatively, you can install Wine to run Windows applications. ");
+            desc += i18n("Alternatively, you can install %1 to run Windows applications. ", compatibilityToolName());
         }
         desc += i18n(
             "This is not recommended for most users, as running Windows applications through a compatibility layer can have bugs, poor performance, and poor "
@@ -186,40 +186,5 @@ void WindowsCompatibilityHelper::nativeAppAction() const
         openApp(nativeAppRef());
     } else {
         openAppInAppStore(nativeAppRef());
-    }
-}
-
-bool WindowsCompatibilityHelper::isCompatibilityToolInstalled() const
-{
-    return isAppInstalled(WINE_ID);
-}
-
-QString WindowsCompatibilityHelper::compatibilityToolActionText() const
-{
-    // TODO: Make this compatibility tool agnostic.
-    if (isCompatibilityToolInstalled()) {
-        return i18n("Run with Wine");
-    } else {
-        return i18n("Install Wine");
-    }
-}
-
-QString WindowsCompatibilityHelper::compatibilityToolActionIcon() const
-{
-    // TODO: Make this compatibility tool agnostic.
-    if (isCompatibilityToolInstalled() && hasIcon(WINE_ID)) {
-        return WINE_ID;
-    } else {
-        return u"plasmadiscover"_s;
-    }
-}
-
-void WindowsCompatibilityHelper::compatibilityToolAction() const
-{
-    // TODO: Make this compatibility tool agnostic.
-    if (isCompatibilityToolInstalled()) {
-        openApp(WINE_ID, {m_filePath});
-    } else {
-        openAppInAppStore(WINE_ID);
     }
 }

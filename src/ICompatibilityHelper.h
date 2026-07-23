@@ -10,6 +10,8 @@
 
 using namespace Qt::Literals::StringLiterals;
 
+class CompatibilityToolInstaller;
+
 class ICompatibilityHelper : public QObject
 {
     Q_OBJECT
@@ -36,13 +38,17 @@ class ICompatibilityHelper : public QObject
     Q_PROPERTY(QString nativeAppActionIcon READ nativeAppActionIcon CONSTANT)
 
     // Indicates if a compatibility tool exists for the executable.
-    // e.g. Bottles for running .exe files, or Gear Lever for running AppImages.
-    // This would usually be set with a simple `return true/false` in the subclass.
+    // e.g. Wine for running .exe files, or Gear Lever for running AppImages.
     Q_PROPERTY(bool hasCompatibilityTool READ hasCompatibilityTool CONSTANT)
     // The text to show the user for the action to install or open the compatibility tool.
     Q_PROPERTY(QString compatibilityToolActionText READ compatibilityToolActionText CONSTANT)
     // The icon to show the user for the action to install or open the compatibility tool.
     Q_PROPERTY(QString compatibilityToolActionIcon READ compatibilityToolActionIcon CONSTANT)
+    // Indicates if the compatibility tool for the executable is installed.
+    Q_PROPERTY(bool compatibilityToolInstalled READ compatibilityToolInstalled CONSTANT)
+    // The Flatpak installer configuration for the compatibility tool.
+    Q_PROPERTY(QObject *compatibilityToolInstaller READ compatibilityToolInstaller CONSTANT)
+    Q_PROPERTY(bool installOnly READ installOnly CONSTANT)
 
     // The text to show the user for the action to open the documentation.
     Q_PROPERTY(QString documentationActionText READ documentationActionText CONSTANT)
@@ -64,16 +70,25 @@ public:
     virtual bool hasNativeApp() const = 0;
     virtual QString nativeAppActionText() const = 0;
     virtual QString nativeAppActionIcon() const = 0;
-    virtual bool hasCompatibilityTool() const = 0;
-    virtual QString compatibilityToolActionText() const = 0;
-    virtual QString compatibilityToolActionIcon() const = 0;
+    virtual bool hasCompatibilityTool() const;
+    virtual QString compatibilityToolActionText() const;
+    virtual QString compatibilityToolActionIcon() const;
+    bool compatibilityToolInstalled() const;
+    QObject *compatibilityToolInstaller() const;
     QString documentationActionText() const;
     QString documentationActionIcon() const;
 
+    void setCompatibilityToolInstaller(CompatibilityToolInstaller *installer);
+    bool installOnly() const;
+    void setInstallOnly(bool installOnly);
+
     // Opens the software store to install the native application, or opens the native application if it is already installed.
     Q_INVOKABLE virtual void nativeAppAction() const;
-    // Opens the package with the chosen compatibility tool, or prompts the user to install the compatibility tool if it is not installed.
-    Q_INVOKABLE virtual void compatibilityToolAction() const;
+    // Launches the compatibility tool, if it's installed. Otherwise we push the Flatpak install wizard to the pageStack,
+    // which is done in QML.
+    Q_INVOKABLE virtual void launchCompatibilityTool() const;
+    // Runs the post-install hook and opens the file with the tool.
+    Q_INVOKABLE void compatibilityToolInstallFinished() const;
     // Opens the documentation link.
     // This is a generic action, so it doesn't need to be overridden in subclasses.
     Q_INVOKABLE void documentationAction() const;
@@ -95,8 +110,9 @@ protected:
     virtual QString nativeAppRef() const = 0;
 
     // Indicates if the compatibility tool is already installed on the system.
-    // This doesn't need to be exposed to the QML interface, as it is only used internally to determine how to display the compatibility tool action.
-    virtual bool isCompatibilityToolInstalled() const = 0;
+    virtual bool isCompatibilityToolInstalled() const;
+
+    QString compatibilityToolName() const;
 
     // Returns the documentation URL, which can be overridden per each mime type.
     virtual QUrl documentationUrl() const;
@@ -124,4 +140,8 @@ protected:
 
     // The file path of the executable/package being opened.
     QUrl m_filePath;
+
+private:
+    CompatibilityToolInstaller *m_compatibilityToolInstaller = nullptr;
+    bool m_installOnly = false;
 };

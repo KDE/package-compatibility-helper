@@ -10,44 +10,83 @@ import org.kde.packagecompatibilityhelper
 Kirigami.ApplicationWindow {
     id: root
 
+    readonly property real fixedWidth: Math.max(mainPage.implicitWidth, installPageMetrics.item?.implicitWidth ?? 0)
+    readonly property real fixedHeight: Math.max(mainPage.implicitHeight, installPageMetrics.item?.implicitHeight ?? 0) + headerSeparator.implicitHeight
+
     title: PackageCompatibilityHelper.windowTitle
-
     flags: Qt.Dialog | Qt.WindowStaysOnTopHint
-
     controlsVisible: false
     pageStack.globalToolBar.style: Kirigami.ApplicationHeaderStyle.None
+    pageStack.defaultColumnWidth: fixedWidth
 
-    minimumWidth: pageStack.currentItem?.implicitWidth ?? 0
-    minimumHeight: pageStack.currentItem?.implicitHeight ?? 0
-    width: minimumWidth
-    height: minimumHeight
-    maximumWidth: width
-    maximumHeight: height
+    minimumWidth: fixedWidth
+    maximumWidth: fixedWidth
+    width: fixedWidth
+    minimumHeight: fixedHeight
+    maximumHeight: fixedHeight
+    height: fixedHeight
 
     header: Kirigami.Separator {
+        id: headerSeparator
         Layout.fillWidth: true
+    }
+
+    Component {
+        id: installPageComponent
+
+        InstallPage {
+            installer: PackageCompatibilityHelper.compatibilityToolInstaller
+            onDeclined: {
+                if (PackageCompatibilityHelper.installOnly) {
+                    installer.decline()
+                } else {
+                    root.pageStack.pop()
+                }
+            }
+            onSucceeded: {
+                if (PackageCompatibilityHelper.installOnly) {
+                    installer.completeSuccess()
+                } else {
+                    PackageCompatibilityHelper.compatibilityToolInstallFinished()
+                    root.close()
+                }
+            }
+        }
+    }
+
+    Component {
+        id: installPageMetricsComponent
+
+        InstallPage {
+            installer: PackageCompatibilityHelper.compatibilityToolInstaller
+        }
+    }
+
+    // Measures the dimensions of the install page without triggering it.
+    Loader {
+        id: installPageMetrics
+        visible: false
+        sourceComponent: installPageMetricsComponent
     }
 
     pageStack.initialPage: Kirigami.Page {
         id: mainPage
-
         padding: Kirigami.Units.largeSpacing
-
         implicitWidth: pageContent.implicitWidth + padding * 2
         implicitHeight: pageContent.implicitHeight + padding * 2
 
         ColumnLayout {
             id: pageContent
-            spacing: Kirigami.Units.smallSpacing
-            Layout.fillWidth: true
+            anchors.fill: parent
+            Layout.margins: Kirigami.Units.largeSpacing
+            spacing: Kirigami.Units.largeSpacing
 
             RowLayout {
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                Layout.fillWidth: true
                 Layout.margins: Kirigami.Units.largeSpacing
+                Layout.fillWidth: true
 
                 Kirigami.Icon {
-                    id: icon
                     Layout.rightMargin: Kirigami.Units.largeSpacing * 2
                     Layout.preferredWidth: Kirigami.Units.iconSizes.large * 2
                     Layout.preferredHeight: Kirigami.Units.iconSizes.large * 2
@@ -75,8 +114,11 @@ Kirigami.ApplicationWindow {
                 }
             }
 
+            Item {
+                Layout.fillHeight: true
+            }
+
             RowLayout {
-                id: actionButtons
                 Layout.alignment: Qt.AlignRight
                 Layout.fillWidth: true
 
@@ -96,8 +138,12 @@ Kirigami.ApplicationWindow {
                     icon.name: PackageCompatibilityHelper.compatibilityToolActionIcon
                     text: PackageCompatibilityHelper.compatibilityToolActionText
                     onClicked: {
-                        PackageCompatibilityHelper.compatibilityToolAction()
-                        root.close()
+                        if (PackageCompatibilityHelper.compatibilityToolInstalled) {
+                            PackageCompatibilityHelper.launchCompatibilityTool()
+                            root.close()
+                        } else {
+                            root.pageStack.push(installPageComponent, { prepareOnCompleted: true })
+                        }
                     }
                 }
 
@@ -131,6 +177,12 @@ Kirigami.ApplicationWindow {
                     onClicked: root.close()
                 }
             }
+        }
+    }
+
+    Component.onCompleted: {
+        if (PackageCompatibilityHelper.installOnly) {
+            pageStack.replace(installPageComponent, { prepareOnCompleted: true })
         }
     }
 }

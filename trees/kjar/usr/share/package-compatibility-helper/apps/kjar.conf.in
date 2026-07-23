@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: NONE
+[App]
+Id=org.kde.kjar
+Name=Java Support
+Icon=application-x-java-archive
+MimeTypes=application/java-archive
+
+[Remote]
+Name=kjar-nightly
+Url=https://cdn.kde.org/flatpak/kjar-nightly/kjar-nightly.flatpakrepo
+
+[Install]
+PostInstall=flatpak run org.kde.kjar --generate-wrappers
+TakeOverMimeTypes=true

@@ -12,8 +12,6 @@
 
 using namespace Qt::Literals::StringLiterals;
 
-#define WINE_ID u"org.winehq.Wine"_s
-
 class WindowsCompatibilityHelper : public ICompatibilityHelper
 {
     Q_OBJECT
@@ -34,17 +32,8 @@ public:
     };
     QString nativeAppActionText() const override;
     QString nativeAppActionIcon() const override;
-    bool hasCompatibilityTool() const override
-    {
-        // Always true for this helper.
-        return true;
-    };
-
-    QString compatibilityToolActionText() const override;
-    QString compatibilityToolActionIcon() const override;
 
     Q_INVOKABLE void nativeAppAction() const override;
-    Q_INVOKABLE void compatibilityToolAction() const override;
 
 private:
     QString m_nativeAppName;
@@ -59,7 +48,6 @@ private:
     {
         return m_nativeAppRef;
     }
-    bool isCompatibilityToolInstalled() const override;
     bool isNativeAppInstalled() const override;
 
     bool m_hasNativeApp = false;

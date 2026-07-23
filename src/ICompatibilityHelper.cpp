@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2025 Thomas Duckworth <tduck@filotimoproject.org>
 
 #include "ICompatibilityHelper.h"
+#include "CompatibilityToolInstaller.h"
 
 #include <KIO/ApplicationLauncherJob>
 #include <KIO/CommandLauncherJob>
@@ -124,8 +125,8 @@ QString ICompatibilityHelper::documentationActionText() const
     return i18n("Get Help");
 }
 
-// Default implementations for the pure virtual Q_INVOKABLEs in ICompatibilityHelper.
-// These should be overridden in subclasses to provide specific functionality.
+// Default implementation for the pure virtual Q_INVOKABLE in ICompatibilityHelper.
+// This should be overridden in subclasses to provide specific functionality.
 // This is to avoid linker errors as the MOC is not able to resolve these without default implementations.
 void ICompatibilityHelper::nativeAppAction() const
 {
@@ -133,8 +134,90 @@ void ICompatibilityHelper::nativeAppAction() const
     qWarning() << "Please file a bug report.";
 }
 
-void ICompatibilityHelper::compatibilityToolAction() const
+void ICompatibilityHelper::setCompatibilityToolInstaller(CompatibilityToolInstaller *installer)
 {
-    qWarning() << "compatibilityToolAction() was called on base class - this should always be overridden in subclasses.";
-    qWarning() << "Please file a bug report.";
+    m_compatibilityToolInstaller = installer;
+}
+
+bool ICompatibilityHelper::installOnly() const
+{
+    return m_installOnly;
+}
+
+void ICompatibilityHelper::setInstallOnly(bool installOnly)
+{
+    m_installOnly = installOnly;
+}
+
+bool ICompatibilityHelper::hasCompatibilityTool() const
+{
+    return m_compatibilityToolInstaller != nullptr;
+}
+
+QString ICompatibilityHelper::compatibilityToolName() const
+{
+    return m_compatibilityToolInstaller != nullptr ? m_compatibilityToolInstaller->displayName() : QString();
+}
+
+QObject *ICompatibilityHelper::compatibilityToolInstaller() const
+{
+    return m_compatibilityToolInstaller;
+}
+
+bool ICompatibilityHelper::isCompatibilityToolInstalled() const
+{
+    if (!m_compatibilityToolInstaller) {
+        return false;
+    }
+    return m_compatibilityToolInstaller->isInstalled();
+}
+
+bool ICompatibilityHelper::compatibilityToolInstalled() const
+{
+    return isCompatibilityToolInstalled();
+}
+
+QString ICompatibilityHelper::compatibilityToolActionText() const
+{
+    if (!hasCompatibilityTool()) {
+        return QString();
+    }
+    if (isCompatibilityToolInstalled()) {
+        return i18n("Run with %1", compatibilityToolName());
+    }
+    return i18n("Install %1", compatibilityToolName());
+}
+
+QString ICompatibilityHelper::compatibilityToolActionIcon() const
+{
+    if (!m_compatibilityToolInstaller) {
+        return QString();
+    }
+    if (isCompatibilityToolInstalled() && hasIcon(m_compatibilityToolInstaller->appId())) {
+        return m_compatibilityToolInstaller->appId();
+    }
+    return m_compatibilityToolInstaller->icon();
+}
+
+void ICompatibilityHelper::launchCompatibilityTool() const
+{
+    if (!hasCompatibilityTool()) {
+        qWarning() << "Invalid operation: No compatibility tool is available for this file type.";
+        return;
+    }
+    if (!isCompatibilityToolInstalled()) {
+        qWarning() << "Invalid operation: The compatibility tool is not installed.";
+        return;
+    }
+    m_compatibilityToolInstaller->takeOverMimeTypes();
+    openApp(m_compatibilityToolInstaller->appId(), {m_filePath});
+}
+
+void ICompatibilityHelper::compatibilityToolInstallFinished() const
+{
+    if (!m_compatibilityToolInstaller) {
+        return;
+    }
+    m_compatibilityToolInstaller->runPostInstall();
+    openApp(m_compatibilityToolInstaller->appId(), {m_filePath});
 }
