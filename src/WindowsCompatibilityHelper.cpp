@@ -19,8 +19,9 @@
 #include <QRegularExpression>
 #include <QStandardPaths>
 
-WindowsCompatibilityHelper::WindowsCompatibilityHelper(const QUrl &databaseFilePath, const QUrl &openedExePath, QObject *parent)
+WindowsCompatibilityHelper::WindowsCompatibilityHelper(const QUrl &databaseFilePath, const QUrl &openedExePath, bool isDosProgram, QObject *parent)
     : ICompatibilityHelper(openedExePath, parent)
+    , m_isDosProgram(isDosProgram)
 {
     m_nativeAppName = m_filePath.fileName();
     m_hasNativeApp = false;
@@ -105,6 +106,8 @@ QString WindowsCompatibilityHelper::heading() const
         } else {
             return i18n("Install %1 from %2 instead", m_alternativeAppName, appStoreName());
         }
+    } else if (m_isDosProgram) {
+        return i18n("DOS programs are not natively supported on %1", distroName());
     } else {
         return i18n("Windows applications are not natively supported on %1", distroName());
     }
@@ -139,14 +142,22 @@ QString WindowsCompatibilityHelper::description() const
 
     if (hasCompatibilityTool() && !hasNativeApp()) {
         desc += u"<br><br>"_s;
-        if (isCompatibilityToolInstalled()) {
-            desc += i18n("Alternatively, you can run the Windows version using %1. ", compatibilityToolName());
+        if (m_isDosProgram) {
+            if (isCompatibilityToolInstalled()) {
+                desc += i18n("Alternatively, you can run this DOS program in the %1 emulator.", compatibilityToolName());
+            } else {
+                desc += i18n("Alternatively, you can install %1 to run DOS programs.", compatibilityToolName());
+            }
         } else {
-            desc += i18n("Alternatively, you can install %1 to run Windows applications. ", compatibilityToolName());
+            if (isCompatibilityToolInstalled()) {
+                desc += i18n("Alternatively, you can run the Windows version using %1. ", compatibilityToolName());
+            } else {
+                desc += i18n("Alternatively, you can install %1 to run Windows applications. ", compatibilityToolName());
+            }
+            desc += i18n(
+                "This is not recommended for most users, as running Windows applications through a compatibility layer can have bugs, poor performance, and "
+                "poor system integration.");
         }
-        desc += i18n(
-            "This is not recommended for most users, as running Windows applications through a compatibility layer can have bugs, poor performance, and poor "
-            "system integration.");
     }
 
     return desc;

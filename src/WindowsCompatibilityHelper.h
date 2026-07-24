@@ -17,7 +17,7 @@ class WindowsCompatibilityHelper : public ICompatibilityHelper
     Q_OBJECT
 
 public:
-    explicit WindowsCompatibilityHelper(const QUrl &databaseFilePath, const QUrl &openedExePath, QObject *parent = nullptr);
+    explicit WindowsCompatibilityHelper(const QUrl &databaseFilePath, const QUrl &openedExePath, bool isDosProgram = false, QObject *parent = nullptr);
     ~WindowsCompatibilityHelper() override = default;
 
     QString windowTitle() const override;
@@ -53,4 +53,6 @@ private:
     bool m_hasNativeApp = false;
     // e.g. if the user opens ie11.exe, this will be true as the Flatpak alternative is Microsoft Edge.
     bool m_needsAlternativeApp = false;
+    // True for real-mode DOS programs, which are run in a DOS emulator instead of Wine.
+    bool m_isDosProgram = false;
 };

@@ -3,9 +3,13 @@
 
 #include <QDebug>
 #include <QDomDocument>
+#include <QFile>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
+#include <QtEndian>
+
+#include <cstring>
 
 #include "PackageUtils.h"
 
@@ -159,4 +163,52 @@ bool extractMetainfoFiles(const QUrl &archivePath, QStringList &metainfoFilesCon
     }
 
     return true;
+}
+
+WindowsBinaryKind classifyWindowsBinary(const QString &localFilePath, const QString &mimeTypeName)
+{
+    if (mimeTypeName == u"application/x-bat"_s || mimeTypeName == u"application/x-msdos-batch"_s) {
+        // .cmd was introduced with Windows NT and is only ever run by cmd.exe,
+        // so it is unambiguously a Windows batch script.
+        if (localFilePath.endsWith(u".cmd"_s, Qt::CaseInsensitive)) {
+            return WindowsBinaryKind::WindowsBatch;
+        }
+        // A .bat file is plain text with no magic number and has meant both a
+        // DOS and a Windows batch script for its whole history. The two share
+        // almost all their syntax, so they cannot be told apart reliably.
+        return WindowsBinaryKind::Batch;
+    }
+    if (mimeTypeName == u"application/x-msi"_s) {
+        return WindowsBinaryKind::Msi;
+    }
+    if (mimeTypeName == u"application/x-ms-shortcut"_s) {
+        return WindowsBinaryKind::Shortcut;
+    }
+
+    QFile file(localFilePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return WindowsBinaryKind::NotWindows;
+    }
+
+    const QByteArray dosHeader = file.read(0x40);
+    if (dosHeader.size() < 0x40 || dosHeader.at(0) != 'M' || dosHeader.at(1) != 'Z') {
+        return WindowsBinaryKind::NotWindows;
+    }
+
+    // e_lfanew points to the NE/PE/LE header, if any.
+    const auto *rawHeader = reinterpret_cast<const uchar *>(dosHeader.constData());
+    const quint32 newHeaderOffset = qFromLittleEndian<quint32>(rawHeader + 0x3C);
+    if (newHeaderOffset < 0x40 || quint64(newHeaderOffset) + 4 > quint64(file.size()) || !file.seek(newHeaderOffset)) {
+        return WindowsBinaryKind::DosProgram;
+    }
+
+    const QByteArray newHeader = file.read(4);
+    if (newHeader.size() >= 4 && std::memcmp(newHeader.constData(), "PE\0\0", 4) == 0) {
+        return WindowsBinaryKind::WindowsPE;
+    }
+    if (newHeader.size() >= 2 && newHeader.at(0) == 'N' && newHeader.at(1) == 'E') {
+        return WindowsBinaryKind::Win16;
+    }
+
+    return WindowsBinaryKind::DosProgram;
 }

@@ -48,6 +48,17 @@ class ICompatibilityHelper : public QObject
     Q_PROPERTY(bool compatibilityToolInstalled READ compatibilityToolInstalled CONSTANT)
     // The Flatpak installer configuration for the compatibility tool.
     Q_PROPERTY(QObject *compatibilityToolInstaller READ compatibilityToolInstaller CONSTANT)
+
+    // A second, optional compatibility tool offered alongside the primary one.
+    // Used when a file type could be handled by either of two tools and the two
+    // cannot be told apart automatically, e.g. a .bat file (Wine or DOSBox).
+    // Defaults to unset, so ordinary helpers are unaffected.
+    Q_PROPERTY(bool hasSecondaryCompatibilityTool READ hasSecondaryCompatibilityTool CONSTANT)
+    Q_PROPERTY(QString secondaryCompatibilityToolActionText READ secondaryCompatibilityToolActionText CONSTANT)
+    Q_PROPERTY(QString secondaryCompatibilityToolActionIcon READ secondaryCompatibilityToolActionIcon CONSTANT)
+    Q_PROPERTY(bool secondaryCompatibilityToolInstalled READ secondaryCompatibilityToolInstalled CONSTANT)
+    Q_PROPERTY(QObject *secondaryCompatibilityToolInstaller READ secondaryCompatibilityToolInstaller CONSTANT)
+
     Q_PROPERTY(bool installOnly READ installOnly CONSTANT)
 
     // The text to show the user for the action to open the documentation.
@@ -75,10 +86,16 @@ public:
     virtual QString compatibilityToolActionIcon() const;
     bool compatibilityToolInstalled() const;
     QObject *compatibilityToolInstaller() const;
+    virtual bool hasSecondaryCompatibilityTool() const;
+    QString secondaryCompatibilityToolActionText() const;
+    QString secondaryCompatibilityToolActionIcon() const;
+    bool secondaryCompatibilityToolInstalled() const;
+    QObject *secondaryCompatibilityToolInstaller() const;
     QString documentationActionText() const;
     QString documentationActionIcon() const;
 
     void setCompatibilityToolInstaller(CompatibilityToolInstaller *installer);
+    void setSecondaryCompatibilityToolInstaller(CompatibilityToolInstaller *installer);
     bool installOnly() const;
     void setInstallOnly(bool installOnly);
 
@@ -89,6 +106,9 @@ public:
     Q_INVOKABLE virtual void launchCompatibilityTool() const;
     // Runs the post-install hook and opens the file with the tool.
     Q_INVOKABLE void compatibilityToolInstallFinished() const;
+    // Same as the two above, but for the optional secondary tool.
+    Q_INVOKABLE void launchSecondaryCompatibilityTool() const;
+    Q_INVOKABLE void secondaryCompatibilityToolInstallFinished() const;
     // Opens the documentation link.
     // This is a generic action, so it doesn't need to be overridden in subclasses.
     Q_INVOKABLE void documentationAction() const;
@@ -111,8 +131,10 @@ protected:
 
     // Indicates if the compatibility tool is already installed on the system.
     virtual bool isCompatibilityToolInstalled() const;
+    bool isSecondaryCompatibilityToolInstalled() const;
 
     QString compatibilityToolName() const;
+    QString secondaryCompatibilityToolName() const;
 
     // Returns the documentation URL, which can be overridden per each mime type.
     virtual QUrl documentationUrl() const;
@@ -143,5 +165,6 @@ protected:
 
 private:
     CompatibilityToolInstaller *m_compatibilityToolInstaller = nullptr;
+    CompatibilityToolInstaller *m_secondaryCompatibilityToolInstaller = nullptr;
     bool m_installOnly = false;
 };

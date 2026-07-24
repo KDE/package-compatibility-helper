@@ -15,6 +15,7 @@ target_sources(packagecompatibilityhelper_static PUBLIC
     ICompatibilityHelper.cpp
     CompatibilityHelperFactory.cpp
     WindowsCompatibilityHelper.cpp
+    BatchCompatibilityHelper.cpp
     RpmCompatibilityHelper.cpp
     DebCompatibilityHelper.cpp
     GenericCompatibilityHelper.cpp
@@ -57,6 +58,7 @@ add_executable(package-compatibility-helper main.cpp)
 target_link_libraries(package-compatibility-helper PUBLIC packagecompatibilityhelper_static packagecompatibilityhelper_staticplugin)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME})
 install(FILES ${CMAKE_SOURCE_DIR}/data/apps/wine.conf
+              ${CMAKE_SOURCE_DIR}/data/apps/dosbox.conf
         DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME}/apps)
 install(TARGETS package-compatibility-helper ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 

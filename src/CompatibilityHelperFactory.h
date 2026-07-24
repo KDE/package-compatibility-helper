@@ -13,7 +13,8 @@ public:
     static ICompatibilityHelper *create(const QUrl &filePath);
 
 private:
-    static ICompatibilityHelper *createWindowsCompatibilityHelper(const QUrl &databaseFilePath, const QUrl &openedExePath);
+    static ICompatibilityHelper *createWindowsCompatibilityHelper(const QUrl &databaseFilePath, const QUrl &openedExePath, bool isDosProgram);
+    static ICompatibilityHelper *createBatchCompatibilityHelper(const QUrl &filePath);
     static ICompatibilityHelper *createRpmCompatibilityHelper(const QUrl &filePath);
     static ICompatibilityHelper *createDebCompatibilityHelper(const QUrl &filePath);
     static ICompatibilityHelper *createGenericCompatibilityHelper(const QUrl &filePath);

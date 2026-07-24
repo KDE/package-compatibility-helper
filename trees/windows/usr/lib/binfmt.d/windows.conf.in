@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: NONE
+:PackageCompatibilityHelper-windows:M::MZ::@KDE_INSTALL_FULL_LIBEXECDIR@/windows-binfmt:F
+# Batch files are plain text and have no magic, so match by extension.
+# binfmt_misc extension matching is case-sensitive, hence one rule per casing.
+:PackageCompatibilityHelper-bat:E::bat::@KDE_INSTALL_FULL_LIBEXECDIR@/windows-binfmt:F
+:PackageCompatibilityHelper-BAT:E::BAT::@KDE_INSTALL_FULL_LIBEXECDIR@/windows-binfmt:F
+:PackageCompatibilityHelper-cmd:E::cmd::@KDE_INSTALL_FULL_LIBEXECDIR@/windows-binfmt:F
+:PackageCompatibilityHelper-CMD:E::CMD::@KDE_INSTALL_FULL_LIBEXECDIR@/windows-binfmt:F

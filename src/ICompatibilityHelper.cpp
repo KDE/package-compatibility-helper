@@ -139,6 +139,11 @@ void ICompatibilityHelper::setCompatibilityToolInstaller(CompatibilityToolInstal
     m_compatibilityToolInstaller = installer;
 }
 
+void ICompatibilityHelper::setSecondaryCompatibilityToolInstaller(CompatibilityToolInstaller *installer)
+{
+    m_secondaryCompatibilityToolInstaller = installer;
+}
+
 bool ICompatibilityHelper::installOnly() const
 {
     return m_installOnly;
@@ -220,4 +225,78 @@ void ICompatibilityHelper::compatibilityToolInstallFinished() const
     }
     m_compatibilityToolInstaller->runPostInstall();
     openApp(m_compatibilityToolInstaller->appId(), {m_filePath});
+}
+
+bool ICompatibilityHelper::hasSecondaryCompatibilityTool() const
+{
+    return m_secondaryCompatibilityToolInstaller != nullptr;
+}
+
+QString ICompatibilityHelper::secondaryCompatibilityToolName() const
+{
+    return m_secondaryCompatibilityToolInstaller != nullptr ? m_secondaryCompatibilityToolInstaller->displayName() : QString();
+}
+
+QObject *ICompatibilityHelper::secondaryCompatibilityToolInstaller() const
+{
+    return m_secondaryCompatibilityToolInstaller;
+}
+
+bool ICompatibilityHelper::isSecondaryCompatibilityToolInstalled() const
+{
+    if (!m_secondaryCompatibilityToolInstaller) {
+        return false;
+    }
+    return m_secondaryCompatibilityToolInstaller->isInstalled();
+}
+
+bool ICompatibilityHelper::secondaryCompatibilityToolInstalled() const
+{
+    return isSecondaryCompatibilityToolInstalled();
+}
+
+QString ICompatibilityHelper::secondaryCompatibilityToolActionText() const
+{
+    if (!hasSecondaryCompatibilityTool()) {
+        return QString();
+    }
+    if (isSecondaryCompatibilityToolInstalled()) {
+        return i18n("Run with %1", secondaryCompatibilityToolName());
+    }
+    return i18n("Install %1", secondaryCompatibilityToolName());
+}
+
+QString ICompatibilityHelper::secondaryCompatibilityToolActionIcon() const
+{
+    if (!m_secondaryCompatibilityToolInstaller) {
+        return QString();
+    }
+    if (isSecondaryCompatibilityToolInstalled() && hasIcon(m_secondaryCompatibilityToolInstaller->appId())) {
+        return m_secondaryCompatibilityToolInstaller->appId();
+    }
+    return m_secondaryCompatibilityToolInstaller->icon();
+}
+
+void ICompatibilityHelper::launchSecondaryCompatibilityTool() const
+{
+    if (!hasSecondaryCompatibilityTool()) {
+        qWarning() << "Invalid operation: No secondary compatibility tool is available for this file type.";
+        return;
+    }
+    if (!isSecondaryCompatibilityToolInstalled()) {
+        qWarning() << "Invalid operation: The secondary compatibility tool is not installed.";
+        return;
+    }
+    // Deliberately not calling takeOverMimeTypes() here: the secondary tool is
+    // the non-default choice, so it should not claim the MIME type handler.
+    openApp(m_secondaryCompatibilityToolInstaller->appId(), {m_filePath});
+}
+
+void ICompatibilityHelper::secondaryCompatibilityToolInstallFinished() const
+{
+    if (!m_secondaryCompatibilityToolInstaller) {
+        return;
+    }
+    m_secondaryCompatibilityToolInstaller->runPostInstall();
+    openApp(m_secondaryCompatibilityToolInstaller->appId(), {m_filePath});
 }

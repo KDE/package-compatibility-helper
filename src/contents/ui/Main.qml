@@ -55,6 +55,19 @@ Kirigami.ApplicationWindow {
     }
 
     Component {
+        id: secondaryInstallPageComponent
+
+        InstallPage {
+            installer: PackageCompatibilityHelper.secondaryCompatibilityToolInstaller
+            onDeclined: root.pageStack.pop()
+            onSucceeded: {
+                PackageCompatibilityHelper.secondaryCompatibilityToolInstallFinished()
+                root.close()
+            }
+        }
+    }
+
+    Component {
         id: installPageMetricsComponent
 
         InstallPage {
@@ -143,6 +156,21 @@ Kirigami.ApplicationWindow {
                             root.close()
                         } else {
                             root.pageStack.push(installPageComponent, { prepareOnCompleted: true })
+                        }
+                    }
+                }
+
+                QQC2.Button {
+                    id: secondaryCompatibilityToolActionButton
+                    visible: PackageCompatibilityHelper.hasSecondaryCompatibilityTool && !PackageCompatibilityHelper.hasNativeApp
+                    icon.name: PackageCompatibilityHelper.secondaryCompatibilityToolActionIcon
+                    text: PackageCompatibilityHelper.secondaryCompatibilityToolActionText
+                    onClicked: {
+                        if (PackageCompatibilityHelper.secondaryCompatibilityToolInstalled) {
+                            PackageCompatibilityHelper.launchSecondaryCompatibilityTool()
+                            root.close()
+                        } else {
+                            root.pageStack.push(secondaryInstallPageComponent, { prepareOnCompleted: true })
                         }
                     }
                 }
