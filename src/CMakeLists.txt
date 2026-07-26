@@ -41,22 +41,10 @@ target_link_libraries(packagecompatibilityhelper_static PUBLIC
 )
 target_include_directories(packagecompatibilityhelper_static PUBLIC ${CMAKE_BINARY_DIR})
 
-# Download app_db.json from ZorinOS
-message(STATUS "Fetching latest app_db.json from ZorinOS GitHub...")
-file(DOWNLOAD
-    "https://raw.githubusercontent.com/ZorinOS/zorin-exec-guard-app-db/refs/heads/master/app_db.json"
-    "${CMAKE_CURRENT_BINARY_DIR}/app_db.json"
-    STATUS download_status
-)
-list(GET download_status 0 status_code)
-if(NOT status_code EQUAL 0)
-    message(FATAL_ERROR "Failed to download app_db.json: ${download_status}")
-endif()
-
 # Target: main executable
 add_executable(package-compatibility-helper main.cpp)
 target_link_libraries(package-compatibility-helper PUBLIC packagecompatibilityhelper_static packagecompatibilityhelper_staticplugin)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME})
+install(FILES app_db.json DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME})
 install(FILES ${CMAKE_SOURCE_DIR}/data/apps/wine.conf
               ${CMAKE_SOURCE_DIR}/data/apps/dosbox.conf
         DESTINATION ${KDE_INSTALL_DATADIR}/${PROJECT_NAME}/apps)
