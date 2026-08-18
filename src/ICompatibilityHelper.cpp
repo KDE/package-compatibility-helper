@@ -10,7 +10,11 @@
 #include <KIO/OpenUrlJob>
 #include <KLocalizedContext>
 #include <KLocalizedString>
+#include <KShell>
+#include <QDir>
+#include <QFileInfo>
 #include <QIcon>
+#include <QRegularExpression>
 
 #define DOCUMENTATION_URL QUrl(u"https://kde.org/linux/docs/more-software"_s)
 
@@ -25,9 +29,37 @@ void ICompatibilityHelper::openAppInAppStore(const QString &ref) const
     job->start();
 }
 
-void ICompatibilityHelper::openApp(const QString &ref, const QList<QUrl> &urls) const
+void ICompatibilityHelper::openApp(const QString &ref, const QList<QUrl> &urls, const QString &transientFolderAccess) const
 {
-    KIO::ApplicationLauncherJob *job = new KIO::ApplicationLauncherJob(KService::serviceByDesktopName(ref));
+    // Exported Flatpak entries spell out the path to flatpak, e.g.
+    // "/usr/bin/flatpak run --command=wine --file-forwarding org.winehq.Wine @@u %u @@".
+    static const QRegularExpression flatpakRun(u"^(?:\\S*/)?flatpak\\s+run\\s+"_s);
+    static const QRegularExpression fileForwarding(u"\\s--file-forwarding\\b|\\s@@u?(?=\\s|$)"_s);
+
+    KService::Ptr service = KService::serviceByDesktopName(ref);
+
+    if (service && !urls.isEmpty()) {
+        QString exec = service->exec();
+        const QRegularExpressionMatch match = flatpakRun.match(exec);
+
+        if (match.hasMatch()) {
+            // Document portal paths put the file in a directory of its own, so
+            // hand over the real path and open its folder instead.
+            exec.remove(fileForwarding);
+            exec.replace(u"%u"_s, u"%f"_s);
+            exec.replace(u"%U"_s, u"%F"_s);
+
+            // Amending the line keeps --branch, --arch and --command.
+            if (!transientFolderAccess.isEmpty()) {
+                exec.insert(match.capturedEnd(), u"--filesystem=%1:rw "_s.arg(KShell::quoteArg(transientFolderAccess)));
+            }
+            service->setExec(exec);
+        } else if (!transientFolderAccess.isEmpty()) {
+            qWarning() << "The desktop entry for" << ref << "does not launch a Flatpak, so its Exec line was left as-is:" << exec;
+        }
+    }
+
+    KIO::ApplicationLauncherJob *job = new KIO::ApplicationLauncherJob(service);
     job->setUiDelegate(KIO::createDefaultJobUiDelegate(KJobUiDelegate::AutoHandlingEnabled, nullptr));
     job->setUrls(urls);
     job->start();
@@ -204,6 +236,36 @@ QString ICompatibilityHelper::compatibilityToolActionIcon() const
     return m_compatibilityToolInstaller->icon();
 }
 
+QString ICompatibilityHelper::compatibilityToolWarning() const
+{
+    if (!hasCompatibilityTool()) {
+        return QString();
+    }
+
+    // With two tools on offer the user has not picked one yet, so don't name one.
+    if (hasSecondaryCompatibilityTool()) {
+        if (isCompatibilityToolInstalled() && isSecondaryCompatibilityToolInstalled()) {
+            return i18nc("@info",
+                         "Running this file temporarily gives the compatibility tool access to everything in this folder, in addition to its existing "
+                         "permissions. The file is not checked for safety. <b>Only run files from trusted sources.</b>");
+        }
+        return i18nc("@info",
+                     "Installing a compatibility tool and running this file with it temporarily gives it access to everything in this folder, in addition to "
+                     "the permissions it comes with. The file is not checked for safety. <b>Only run files from trusted sources.</b>");
+    }
+
+    if (isCompatibilityToolInstalled()) {
+        return i18nc("@info %1 is an application name, e.g. \"Wine\"",
+                     "Running this file temporarily gives %1 access to everything in this folder, in addition to its existing permissions. The file is not "
+                     "checked for safety. <b>Only run files from trusted sources.</b>",
+                     compatibilityToolName());
+    }
+    return i18nc("@info %1 is an application name, e.g. \"Wine\"",
+                 "Installing %1 and running this file with it temporarily gives it access to everything in this folder, in addition to the permissions it "
+                 "comes with. The file is not checked for safety. <b>Only run files from trusted sources.</b>",
+                 compatibilityToolName());
+}
+
 void ICompatibilityHelper::launchCompatibilityTool() const
 {
     if (!hasCompatibilityTool()) {
@@ -215,7 +277,7 @@ void ICompatibilityHelper::launchCompatibilityTool() const
         return;
     }
     m_compatibilityToolInstaller->takeOverMimeTypes();
-    openApp(m_compatibilityToolInstaller->appId(), {m_filePath});
+    openApp(m_compatibilityToolInstaller->appId(), {m_filePath}, fileFolder());
 }
 
 void ICompatibilityHelper::compatibilityToolInstallFinished() const
@@ -224,7 +286,7 @@ void ICompatibilityHelper::compatibilityToolInstallFinished() const
         return;
     }
     m_compatibilityToolInstaller->runPostInstall();
-    openApp(m_compatibilityToolInstaller->appId(), {m_filePath});
+    openApp(m_compatibilityToolInstaller->appId(), {m_filePath}, fileFolder());
 }
 
 bool ICompatibilityHelper::hasSecondaryCompatibilityTool() const
@@ -289,7 +351,7 @@ void ICompatibilityHelper::launchSecondaryCompatibilityTool() const
     }
     // Deliberately not calling takeOverMimeTypes() here: the secondary tool is
     // the non-default choice, so it should not claim the MIME type handler.
-    openApp(m_secondaryCompatibilityToolInstaller->appId(), {m_filePath});
+    openApp(m_secondaryCompatibilityToolInstaller->appId(), {m_filePath}, fileFolder());
 }
 
 void ICompatibilityHelper::secondaryCompatibilityToolInstallFinished() const
@@ -298,5 +360,13 @@ void ICompatibilityHelper::secondaryCompatibilityToolInstallFinished() const
         return;
     }
     m_secondaryCompatibilityToolInstaller->runPostInstall();
-    openApp(m_secondaryCompatibilityToolInstaller->appId(), {m_filePath});
+    openApp(m_secondaryCompatibilityToolInstaller->appId(), {m_filePath}, fileFolder());
+}
+
+QString ICompatibilityHelper::fileFolder() const
+{
+    if (!m_filePath.isValid() || !m_filePath.isLocalFile()) {
+        return QString();
+    }
+    return QDir::cleanPath(QFileInfo(m_filePath.toLocalFile()).absolutePath());
 }

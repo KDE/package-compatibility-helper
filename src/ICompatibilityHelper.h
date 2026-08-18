@@ -48,6 +48,9 @@ class ICompatibilityHelper : public QObject
     Q_PROPERTY(bool compatibilityToolInstalled READ compatibilityToolInstalled CONSTANT)
     // The Flatpak installer configuration for the compatibility tool.
     Q_PROPERTY(QObject *compatibilityToolInstaller READ compatibilityToolInstaller CONSTANT)
+    // Warns about the folder access the tool is given and that the file itself
+    // is unchecked. Empty means no warning is shown.
+    Q_PROPERTY(QString compatibilityToolWarning READ compatibilityToolWarning CONSTANT)
 
     // A second, optional compatibility tool offered alongside the primary one.
     // Used when a file type could be handled by either of two tools and the two
@@ -86,6 +89,7 @@ public:
     virtual QString compatibilityToolActionIcon() const;
     bool compatibilityToolInstalled() const;
     QObject *compatibilityToolInstaller() const;
+    virtual QString compatibilityToolWarning() const;
     virtual bool hasSecondaryCompatibilityTool() const;
     QString secondaryCompatibilityToolActionText() const;
     QString secondaryCompatibilityToolActionIcon() const;
@@ -148,8 +152,9 @@ protected:
     // Helper that returns the name of the default app store, e.g. "Discover" or "Bazaar".
     QString appStoreName() const;
 
-    // Helper to open an app.
-    void openApp(const QString &ref, const QList<QUrl> &urls = {}) const;
+    // Helper to open an app. A folder named by transientFolderAccess is opened
+    // for it for that launch only.
+    void openApp(const QString &ref, const QList<QUrl> &urls = {}, const QString &transientFolderAccess = {}) const;
 
     // Helper to check if an app is installed.
     bool isAppInstalled(const QString &ref) const;
@@ -159,6 +164,9 @@ protected:
 
     // Helper to return the distro name.
     QString distroName() const;
+
+    // The folder the opened file is in, or an empty string in --install mode.
+    QString fileFolder() const;
 
     // The file path of the executable/package being opened.
     QUrl m_filePath;

@@ -78,6 +78,7 @@ Kirigami.ApplicationWindow {
     // Measures the dimensions of the install page without triggering it.
     Loader {
         id: installPageMetrics
+        active: PackageCompatibilityHelper.hasCompatibilityTool
         visible: false
         sourceComponent: installPageMetricsComponent
     }
@@ -123,6 +124,15 @@ Kirigami.ApplicationWindow {
                         Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 30, heading.implicitWidth)
                         wrapMode: Text.WordWrap
                         text: PackageCompatibilityHelper.description
+                    }
+
+                    Kirigami.InlineMessage {
+                        visible: PackageCompatibilityHelper.compatibilityToolWarning !== "" && !PackageCompatibilityHelper.hasNativeApp
+                        Layout.fillWidth: true
+                        Layout.maximumWidth: Math.max(Kirigami.Units.gridUnit * 30, heading.implicitWidth)
+                        Layout.topMargin: Kirigami.Units.smallSpacing
+                        type: Kirigami.MessageType.Warning
+                        text: PackageCompatibilityHelper.compatibilityToolWarning
                     }
                 }
             }
